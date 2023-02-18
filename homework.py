@@ -40,10 +40,7 @@ handler.setFormatter(formatter)
 
 
 def check_tokens() -> bool:
-    """
-    Проверяет доступность переменных окружения,
-    необходимых для работы бота.
-    """
+    """Проверяет доступность переменных окружения, необходимых для работы."""
     VARIABLE_IS_MISSING = 'Отсутствует обязательная переменная окружения'
     if not PRACTICUM_TOKEN:
         logging.critical(f'{VARIABLE_IS_MISSING} - PRACTICUM_TOKEN')
