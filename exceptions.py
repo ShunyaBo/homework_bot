@@ -26,3 +26,9 @@ class StatusIsNotEqualTo200(Exception):
     """Вызывается, когда API домашки возвращает код, отличный от 200."""
 
     pass
+
+
+class ResponseFormatIsNotJson(Exception):
+    """Вызывается, если ответ сервера не в формате json."""
+
+    pass
