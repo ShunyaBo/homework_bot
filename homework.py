@@ -42,8 +42,7 @@ handler.setFormatter(formatter)
 
 def check_tokens() -> bool:
     """Проверяет доступность переменных окружения, необходимых для работы."""
-    variables = all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
-    return variables
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def send_message(bot, message: str) -> None:
@@ -81,7 +80,6 @@ def get_api_answer(timestamp: int) -> dict:
             f'GET-запроса: {HEADERS} и временной меткой {timestamp}.'
             f'Текст ошибки: {error}'
         )
-        # logger.error(message)
         raise exceptions.EndPointUnavailable(message)
     try:
         response.json()
@@ -102,14 +100,12 @@ def check_response(response: dict) -> list:
     if not isinstance(response, dict):
         raise TypeError('В ответе API не обнаружен dict')
 
-    if 'homeworks' in response:
-        homework = response['homeworks']
-        message = 'Получены сведения о последней домашней работе'
-        logger.debug(message)
-    else:
-        message = 'В ответе не обнаружен ключ homeworks'
-        # logger.error(message)
-        raise exceptions.KeyNotFound(message)
+    if 'homeworks' not in response:
+        message_1 = 'В ответе не обнаружен ключ homeworks'
+        raise exceptions.KeyNotFound(message_1)
+    homework = response['homeworks']
+    message_2 = 'Получены сведения о последней домашней работе'
+    logger.debug(message_2)
 
     if not isinstance(homework, list):
         raise TypeError('Тип ключа homeworks не list')
@@ -122,20 +118,21 @@ def parse_status(homework: dict) -> str:
     В случае успеха, функция возвращает подготовленную для отправки в Telegram
     строку, содержащую один из вердиктов словаря HOMEWORK_VERDICTS.
     """
-    if 'homework_name' in homework:
-        homework_name = homework.get('homework_name')
-        homework_status = homework.get('status')
-    else:
+    if 'homework_name' not in homework:
         message = 'Ключ homework_name не найден в информации о домашней работе'
-        # logger.error(message)
         raise KeyError(message)
+    homework_name = homework.get('homework_name')
+
+    if 'status' not in homework:
+        message = 'Ключ status не найден в информации о домашней работе'
+        raise KeyError(message)
+    homework_status = homework.get('status')
 
     try:
         verdict = HOMEWORK_VERDICTS[homework_status]
         logger.debug('Статус работы известен')
     except KeyError as error:
         message = f'Неизвестный статус домашней работы: {error}'
-        # logger.error(message)
         raise exceptions.StatusUnknown(message)
 
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
